@@ -121,7 +121,7 @@ jobs:
         run: task ci:sit
       - name: Upload SIT reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sit-reports
           path: reports/sit
