@@ -1,0 +1,14 @@
+<!-- Builds and tests everything. Projects are found by pattern, so a new context edits no list here. -->
+<Project Sdk="Microsoft.Build.Traversal/4.1.82">
+  <ItemGroup>
+    <ProjectReference Include="platform/Platform.csproj" />
+    <ProjectReference Include="kernel/Kernel.csproj" />
+    <ProjectReference Include="testing/Testing.csproj" />
+    <ProjectReference Include="guard/Guard.csproj" />
+    <ProjectReference Include="tools/MockLogto/MockLogto.csproj" />
+    <ProjectReference Include="contexts/*/contract/*.csproj" />
+    <ProjectReference Include="contexts/*/src/*.csproj" />
+    <ProjectReference Include="contexts/*/tests/*.csproj" />
+    <ProjectReference Include="tests/*/*.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,20 @@
+meta {
+  name: A reads the penalty consent: none yet
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Payment/{{subA}}/consent?purpose=penalty
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.hasPaymentConsent: eq false
+}

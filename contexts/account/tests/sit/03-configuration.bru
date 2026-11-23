@@ -1,0 +1,28 @@
+meta {
+  name: create my configuration
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Configuration
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{acctA}}
+}
+
+body:json {
+  { "timezone": "UTC" }
+}
+
+assert {
+  res.status: eq 200
+  res.body.userId: eq sit-acct-a
+}
+
+script:post-response {
+  bru.setVar("acctConfigId", res.body.id);
+}

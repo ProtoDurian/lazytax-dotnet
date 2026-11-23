@@ -1,0 +1,23 @@
+meta {
+  name: B confirms the intent of A on their own path: 404
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Payment/{{subB}}/intent/{{paymentIntentA}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  { "paymentConsentId": "cst_b" }
+}
+
+assert {
+  res.status: eq 404
+}

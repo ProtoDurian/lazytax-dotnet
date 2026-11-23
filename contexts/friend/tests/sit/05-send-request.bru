@@ -1,0 +1,23 @@
+meta {
+  name: A asks B to be friends
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Friend/{{subA}}/requests
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  { "toUserId": "{{subB}}" }
+}
+
+assert {
+  res.status: eq 200
+}

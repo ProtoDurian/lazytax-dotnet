@@ -1,0 +1,3 @@
+[*.cs]
+# tests are short in-process runs; passing TestContext.Current.CancellationToken everywhere adds noise
+dotnet_diagnostic.xUnit1051.severity = none

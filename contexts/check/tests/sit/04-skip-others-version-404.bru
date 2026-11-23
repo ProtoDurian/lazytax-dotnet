@@ -1,0 +1,23 @@
+meta {
+  name: B skipping A's habit version on B's own path is 404 (the SkipHabit ownership bug)
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{subB}}/{{checkVersionA}}/executions/skip
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  { "notes": "not mine" }
+}
+
+assert {
+  res.status: eq 404
+}

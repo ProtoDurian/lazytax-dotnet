@@ -1,0 +1,19 @@
+meta {
+  name: declining a request nobody sent is 404
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/Friend/{{subA}}/requests/not-a-user
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 404
+}

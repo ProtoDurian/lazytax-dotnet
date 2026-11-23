@@ -1,0 +1,28 @@
+meta {
+  name: before the deadline A has no failed execution yet
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Habit/{{subA}}/executions
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+}
+
+tests {
+  // The missed part (deadline passes, failed execution, pending penalty, inbox item) needs a clock past the
+  // deadline, so it lives in contexts/check/tests/integration/MissedHabitFlowTests.cs (see README.md here).
+  test("no failed execution of the habit yet", function () {
+    const rows = res.body.filter((e) => e.habitVersionId === bru.getVar("versionId") && e.status === "failed");
+    expect(rows.length).to.equal(0);
+  });
+}

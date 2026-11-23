@@ -1,0 +1,84 @@
+<Project>
+  <!--
+    Every project under contexts/ gets its name, namespace and references from its folder:
+
+      contexts/<name>/contract/<name>.Contract.csproj  -> Ctx.<Name>.Contract  (refs: platform)
+      contexts/<name>/src/<name>.csproj                -> Ctx.<Name>           (refs: platform, own contract,
+                                                                                the contracts in `needs:`)
+      contexts/<name>/tests/<name>.Tests.csproj        -> Ctx.<Name>.Tests     (refs: own src + contract, testing)
+
+    `needs:` is read from context.yaml, so the compiler refuses a call into a contract the context did not
+    declare. A context's src can never see another context's src: there is no reference to it.
+    <name> is lowercase letters and digits only; <Name> is the same with the first letter upper-cased.
+  -->
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+
+  <PropertyGroup>
+    <CtxRoot>$(MSBuildThisFileDirectory)</CtxRoot>
+    <_CtxRel>$([MSBuild]::MakeRelative('$(CtxRoot)', '$(MSBuildProjectDirectory)'))</_CtxRel>
+    <CtxName>$([System.Text.RegularExpressions.Regex]::Match('$(_CtxRel)', '^[^/\\]+').Value)</CtxName>
+    <CtxPart>$([System.Text.RegularExpressions.Regex]::Replace('$(_CtxRel)', '^[^/\\]+[/\\]?', ''))</CtxPart>
+    <CtxPascal>$(CtxName.Substring(0, 1).ToUpperInvariant())$(CtxName.Substring(1))</CtxPascal>
+    <CtxDir>$(CtxRoot)$(CtxName)/</CtxDir>
+    <CtxYaml>$(CtxDir)context.yaml</CtxYaml>
+  </PropertyGroup>
+
+  <!-- needs: [a.v1, b.v1]  ->  ProjectReference to contexts/a/contract and contexts/b/contract -->
+  <PropertyGroup Condition="Exists('$(CtxYaml)')">
+    <_CtxYamlText>$([System.IO.File]::ReadAllText('$(CtxYaml)'))</_CtxYamlText>
+    <_CtxNeedsLine>$([System.Text.RegularExpressions.Regex]::Match('$(_CtxYamlText)', '(?m)^needs:[^\r\n]*').Value)</_CtxNeedsLine>
+    <_CtxNeeds>$([System.Text.RegularExpressions.Regex]::Replace('$(_CtxNeedsLine)', '^needs:\s*\[|\]\s*$|\s', ''))</_CtxNeeds>
+    <_CtxNeedRefs>$([System.Text.RegularExpressions.Regex]::Replace('$(_CtxNeeds)', '([a-z][a-z0-9]*)\.v[0-9]+', '$(CtxRoot)$1/contract/$1.Contract.csproj'))</_CtxNeedRefs>
+  </PropertyGroup>
+
+  <!-- contract: interfaces, records and problems only; refs platform (Owner, Problem). -->
+  <PropertyGroup Condition="'$(CtxPart)' == 'contract'">
+    <AssemblyName>Ctx.$(CtxPascal).Contract</AssemblyName>
+    <RootNamespace>Ctx.$(CtxPascal).Contract</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CtxPart)' == 'contract'">
+    <ProjectReference Include="$(CtxRoot)../platform/Platform.csproj" />
+  </ItemGroup>
+
+  <!-- src: the context itself. -->
+  <PropertyGroup Condition="'$(CtxPart)' == 'src'">
+    <AssemblyName>Ctx.$(CtxPascal)</AssemblyName>
+    <RootNamespace>Ctx.$(CtxPascal)</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CtxPart)' == 'src'">
+    <ProjectReference Include="$(CtxRoot)../platform/Platform.csproj" />
+    <ProjectReference Include="$(CtxDir)contract/$(CtxName).Contract.csproj" />
+    <ProjectReference Include="$(_CtxNeedRefs.Split(','))" Condition="'$(_CtxNeedRefs)' != ''" />
+    <ProjectReference Include="$(CtxRoot)../guard/Guard.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    <EmbeddedResource Include="$(CtxYaml)" LogicalName="context.yaml" />
+    <AssemblyAttribute Include="System.Reflection.AssemblyMetadataAttribute">
+      <_Parameter1>ContextFolder</_Parameter1>
+      <_Parameter2>contexts/$(CtxName)</_Parameter2>
+    </AssemblyAttribute>
+    <InternalsVisibleTo Include="Ctx.$(CtxPascal).Tests" />
+  </ItemGroup>
+
+  <!-- tests: unit (namespace *.Unit), integration (namespace *.Integration), one project. -->
+  <PropertyGroup Condition="'$(CtxPart)' == 'tests'">
+    <AssemblyName>Ctx.$(CtxPascal).Tests</AssemblyName>
+    <RootNamespace>Ctx.$(CtxPascal).Tests</RootNamespace>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- Tests pass no CancellationToken to HttpClient calls; the noise is not worth it. -->
+    <NoWarn>$(NoWarn);xUnit1051</NoWarn>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(CtxPart)' == 'tests'">
+    <ProjectReference Include="$(CtxDir)src/$(CtxName).csproj" />
+    <ProjectReference Include="$(CtxDir)contract/$(CtxName).Contract.csproj" />
+    <ProjectReference Include="$(CtxRoot)../testing/Testing.csproj" />
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <Using Include="Xunit" />
+    <Using Include="FluentAssertions" />
+    <Compile Remove="sit/**" />
+    <None Remove="sit/**" />
+  </ItemGroup>
+</Project>

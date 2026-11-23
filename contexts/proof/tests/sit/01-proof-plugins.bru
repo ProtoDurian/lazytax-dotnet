@@ -1,0 +1,17 @@
+meta {
+  name: proof plugins - 401, list
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Proof/plugins
+  body: none
+  auth: none
+}
+
+tests {
+  test("anonymous is 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}

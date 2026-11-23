@@ -1,0 +1,27 @@
+meta {
+  name: mint a token for user Admin
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{logtoUrl}}/token
+  body: json
+  auth: none
+}
+
+script:pre-request {
+  bru.setVar("subAdmin", "u_sit_penalty_admin_" + Date.now());
+}
+
+body:json {
+  { "sub": "{{subAdmin}}", "scope": "admin" }
+}
+
+script:post-response {
+  bru.setVar("tokenAdmin", res.body.access_token);
+}
+
+assert {
+  res.status: eq 200
+}

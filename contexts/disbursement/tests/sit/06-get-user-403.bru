@@ -1,0 +1,19 @@
+meta {
+  name: get as a normal user is 403, not 404
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/disbursement/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 403
+}

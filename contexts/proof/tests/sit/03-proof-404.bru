@@ -1,0 +1,21 @@
+meta {
+  name: proof binding - 404 for a habit that is not mine
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Proof/{{subA}}/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+tests {
+  test("a habit that is not mine is 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

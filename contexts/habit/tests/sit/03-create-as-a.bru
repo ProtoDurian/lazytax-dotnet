@@ -1,0 +1,33 @@
+meta {
+  name: 03-create-as-a
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{userA}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  {
+    "task": "SIT run",
+    "daysOfWeek": ["Monday"],
+    "notificationTime": "07:00:00",
+    "stake": "0",
+    "timezone": "Asia/Singapore"
+  }
+}
+
+script:post-response {
+  if (res.status === 200) bru.setVar("habitId", res.body.habitId);
+}
+
+assert {
+  res.status: eq 200
+}

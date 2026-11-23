@@ -1,0 +1,19 @@
+meta {
+  name: another user's vacation id with my own path is 404
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/Vacation/{{subB}}/{{vacId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

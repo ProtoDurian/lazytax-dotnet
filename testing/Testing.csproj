@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Shared test helpers: the app on real Postgres, test tokens, the owner-scoped 404 check. -->
+  <PropertyGroup>
+    <RootNamespace>LazyTax.Testing</RootNamespace>
+    <AssemblyName>LazyTax.Testing</AssemblyName>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="xunit.v3.extensibility.core" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../kernel/Kernel.csproj" />
+    <ProjectReference Include="../platform/Platform.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,7 @@
+id: ctx_9z0eg7
+name: friend
+needs: [account.v1, habit.v1, notification.v1]
+provides: [friend.v1]
+uses: [postgres.main]
+http: { prefix: /api/v1 }
+mcp: { prefix: friend }

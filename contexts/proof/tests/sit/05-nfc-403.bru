@@ -1,0 +1,21 @@
+meta {
+  name: nfc - 403 other user's path
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/NfcTag/{{subB}}/tag-0123456789abcdef
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+tests {
+  test("another user's path is 403", function () {
+    expect(res.getStatus()).to.equal(403);
+  });
+}

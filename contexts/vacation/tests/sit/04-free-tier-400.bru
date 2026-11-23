@@ -1,0 +1,24 @@
+meta {
+  name: free tier has no vacation windows
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Vacation/sit-vac-a
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{vacA}}
+}
+
+body:json {
+  { "startDate": "10-01-2099", "endDate": "12-01-2099", "timezone": "UTC" }
+}
+
+assert {
+  res.status: eq 400
+  res.body.type: eq /problems/v1/tier_insufficient
+}

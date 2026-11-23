@@ -1,0 +1,27 @@
+meta {
+  name: mint a token for user A
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{logtoUrl}}/token
+  body: json
+  auth: none
+}
+
+script:pre-request {
+  bru.setVar("subA", "u_sit_penalty_a_" + Date.now());
+}
+
+body:json {
+  { "sub": "{{subA}}", "scope": "" }
+}
+
+script:post-response {
+  bru.setVar("tokenA", res.body.access_token);
+}
+
+assert {
+  res.status: eq 200
+}

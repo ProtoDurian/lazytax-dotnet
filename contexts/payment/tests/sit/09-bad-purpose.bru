@@ -1,0 +1,19 @@
+meta {
+  name: unknown purpose: 400
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Payment/{{subA}}/consent?purpose=bogus
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 400
+}

@@ -1,0 +1,23 @@
+meta {
+  name: complete on another user's path is 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{subA}}/00000000-0000-0000-0000-000000000001/executions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  { "notes": null }
+}
+
+assert {
+  res.status: eq 403
+}

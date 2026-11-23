@@ -1,0 +1,28 @@
+meta {
+  name: A completes today's check
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{subA}}/{{checkVersionA}}/executions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  { "notes": "sit" }
+}
+
+script:post-response {
+  bru.setVar("checkExecutionA", res.body.id);
+}
+
+assert {
+  res.status: eq 200
+  res.body.status: eq succeeded
+}

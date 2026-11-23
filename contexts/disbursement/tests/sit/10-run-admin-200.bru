@@ -1,0 +1,20 @@
+meta {
+  name: run as admin is 200
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/disbursement/run
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.completed: gte 0
+}

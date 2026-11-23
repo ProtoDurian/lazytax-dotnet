@@ -1,0 +1,17 @@
+meta {
+  name: plan catalog is public
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Subscription/plans
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 200
+  res.body.length: eq 3
+  res.body[0].key: eq free
+}

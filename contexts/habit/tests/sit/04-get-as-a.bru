@@ -1,0 +1,20 @@
+meta {
+  name: 04-get-as-a
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Habit/{{userA}}/{{habitId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.task: eq SIT run
+}

@@ -1,0 +1,23 @@
+meta {
+  name: charity write as non-admin is 403
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Charity
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  { "name": "Nope" }
+}
+
+assert {
+  res.status: eq 403
+}
