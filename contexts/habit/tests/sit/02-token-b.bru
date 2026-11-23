@@ -1,0 +1,24 @@
+meta {
+  name: 02-token-b
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{logtoUrl}}/token
+  body: json
+  auth: none
+}
+
+body:json {
+  { "sub": "sit-habit-b", "scope": "" }
+}
+
+script:post-response {
+  bru.setVar("userB", "sit-habit-b");
+  bru.setVar("tokenB", res.body.access_token);
+}
+
+assert {
+  res.status: eq 200
+}

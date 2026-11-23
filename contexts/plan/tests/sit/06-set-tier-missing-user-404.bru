@@ -1,0 +1,23 @@
+meta {
+  name: setting a tier for a missing user is 404
+  type: http
+  seq: 6
+}
+
+put {
+  url: {{baseUrl}}/api/v1/Subscription/sit-plan-nobody/tier
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  { "tier": "pro" }
+}
+
+assert {
+  res.status: eq 404
+}

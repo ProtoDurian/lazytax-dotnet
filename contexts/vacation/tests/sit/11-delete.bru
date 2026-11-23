@@ -1,0 +1,19 @@
+meta {
+  name: delete my future vacation
+  type: http
+  seq: 11
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/Vacation/sit-vac-a/{{vacId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{vacA}}
+}
+
+assert {
+  res.status: eq 204
+}

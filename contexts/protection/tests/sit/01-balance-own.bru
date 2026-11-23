@@ -1,0 +1,21 @@
+meta {
+  name: A reads own balance
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Protection/{{subA}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.userId: eq {{subA}}
+  res.body.balance: eq 0
+}

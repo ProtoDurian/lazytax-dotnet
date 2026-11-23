@@ -1,0 +1,21 @@
+meta {
+  name: nfc - 404 for an unclaimed tag
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/NfcTag/{{subA}}/tag-0123456789abcdef
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+tests {
+  test("an unclaimed or foreign tag is 404", function () {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

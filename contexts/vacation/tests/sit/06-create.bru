@@ -1,0 +1,28 @@
+meta {
+  name: create a vacation
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Vacation/sit-vac-a
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{vacA}}
+}
+
+body:json {
+  { "startDate": "10-01-2099", "endDate": "12-01-2099", "timezone": "UTC" }
+}
+
+assert {
+  res.status: eq 200
+  res.body.startDate: eq 10-01-2099
+}
+
+script:post-response {
+  bru.setVar("vacId", res.body.id);
+}

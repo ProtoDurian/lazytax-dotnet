@@ -1,0 +1,19 @@
+meta {
+  name: removing a stranger is 404
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/api/v1/Friend/{{subB}}/not-a-friend
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

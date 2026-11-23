@@ -1,0 +1,21 @@
+meta {
+  name: A creates a payment customer: 200
+  type: http
+  seq: 1
+}
+
+put {
+  url: {{baseUrl}}/api/v1/Payment/{{subA}}/customers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.customerId: isString
+  res.body.clientSecret: isString
+}

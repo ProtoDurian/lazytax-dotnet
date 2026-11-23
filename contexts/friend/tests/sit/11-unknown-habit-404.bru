@@ -1,0 +1,19 @@
+meta {
+  name: watchers of an unknown habit are 404
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/api/v1/FriendStake/{{subB}}/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

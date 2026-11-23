@@ -1,0 +1,20 @@
+meta {
+  name: an admin reads the charity ledger
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Penalty/admin/charity-balances
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{tokenAdmin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body: isArray
+}

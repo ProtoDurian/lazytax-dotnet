@@ -1,0 +1,104 @@
+version: '3'
+# SIT, the log-file test and every CI job. Each `ci:<job>` is exactly what .github/workflows/ci.yaml runs.
+# Included (flattened) by the root Taskfile.yaml.
+vars:
+  # The shared box's slot queues (4 dotnet jobs, 2 bun test runs). Empty when the queue is absent, e.g. in CI.
+  DOTNET_SLOT:
+    sh: f="${LAZYTAX_SLOT:-../tools/slot.sh}"; [ -x "$f" ] && echo "$f dotnet" || echo ""
+  BUN_SLOT:
+    sh: f="${LAZYTAX_SLOT:-../tools/slot.sh}"; [ -x "$f" ] && echo "$f bun-net" || echo ""
+  PRETTIER_VERSION: 3.6.2
+env:
+  MSBUILDDISABLENODEREUSE: '1'
+  DOTNET_CLI_USE_MSBUILD_SERVER: '0'
+tasks:
+  sit:build:
+    desc: Build what SIT and the log-file test run (kernel + mock Logto, Release)
+    cmds:
+      - '{{.DOTNET_SLOT}} timeout 600 dotnet build kernel/Kernel.csproj -c Release -nologo -m:1 -p:UseSharedCompilation=false -nodeReuse:false'
+      - '{{.DOTNET_SLOT}} timeout 600 dotnet build tools/MockLogto/MockLogto.csproj -c Release -nologo -m:1 -p:UseSharedCompilation=false -nodeReuse:false'
+  sit:
+    desc: 'Bruno SIT: Postgres, mock Logto and the app, then every collection (docs/sit.md). --only <text> picks some'
+    cmds:
+      - task: sit:build
+      - bun tools/sit/sit.ts {{.CLI_ARGS}}
+  test:logfile:
+    desc: Start the app with LOG_FILE set and assert on the file
+    cmds:
+      - task: sit:build
+      - '{{.BUN_SLOT}} timeout 300 bun test --timeout 120000 tests/logfile/'
+  restore:
+    desc: Restore every project once
+    cmds:
+      - '{{.DOTNET_SLOT}} timeout 600 dotnet restore all.proj -nologo'
+  fmt:check:
+    desc: Formatting of the non-C# files this lane owns (prettier, pinned) and of every C# file (dotnet format)
+    cmds:
+      - task: restore
+      - 'for p in $(git ls-files "*.csproj"); do {{.DOTNET_SLOT}} timeout 600 dotnet format "$p" --verify-no-changes --no-restore -v q || exit 1; done'
+      - bunx prettier@{{.PRETTIER_VERSION}} --check ".github/workflows/ci.yaml" "tasks/*.yaml" "tests/sit*/**/*.json" "tools/sit/*.ts" "tests/logfile/*.ts" "docs/sit.md"
+  actionlint:
+    desc: actionlint over every workflow
+    cmds:
+      - actionlint
+  boundaries:
+    desc: Readable boundary check over contexts/ (the compiler is the real gate)
+    cmds:
+      - bun tools/sit/boundaries.ts
+  breach:
+    desc: Plant 4 boundary/policy breaches and prove each is refused (scripts/check/breach.sh)
+    cmds:
+      - ./scripts/check/breach.sh
+  policies:check:
+    desc: Every route and MCP tool has an explicit policy (kernel `policies` command, fails otherwise)
+    cmds:
+      - task: sit:build
+      - ConnectionStrings__Main='Host=localhost;Database=unused' dotnet kernel/bin/Release/net10.0/LazyTax.Kernel.dll policies
+  ci:lint:
+    desc: CI job lint - dotnet format, prettier, actionlint
+    cmds:
+      - task: fmt:check
+      - task: actionlint
+  ci:build:
+    desc: CI job build - whole repo, Release, warnings are errors
+    cmds:
+      - '{{.DOTNET_SLOT}} timeout 600 dotnet build all.proj -c Release -nologo -m:1 -p:UseSharedCompilation=false -nodeReuse:false'
+  ci:boundaries:
+    desc: CI job boundaries - boundary check and the policy check
+    cmds:
+      - task: boundaries
+      - task: policies:check
+      - task: breach
+  ci:unit:
+    desc: CI job unit - every context's unit tests
+    cmds:
+      - '{{.DOTNET_SLOT}} timeout 900 dotnet test all.proj -c Release -nologo -m:1 -p:UseSharedCompilation=false -nodeReuse:false --filter "FullyQualifiedName~.Unit."'
+  ci:int:
+    env:
+      LT_PG_PORT: '{{.LT_SIT_PG_PORT | default "55461"}}'
+    desc: CI job int - every context's integration tests and the kernel tests (Postgres from LT_PG, else a local container)
+    cmds:
+      - '[ -n "${LT_PG:-}" ] || bun tools/sit/pg.ts up'
+      - '{{.DOTNET_SLOT}} timeout 1200 dotnet test all.proj -c Release -nologo -m:1 -p:UseSharedCompilation=false -nodeReuse:false --filter "FullyQualifiedName~.Integration.|FullyQualifiedName~LazyTax.Kernel.Tests"'
+  ci:sit:
+    desc: CI job sit - Bruno
+    cmds:
+      - task: sit
+  ci:logfile:
+    desc: CI job logfile - the log-file test
+    cmds:
+      - task: test:logfile
+  ci:all:
+    desc: Every CI job, in order
+    cmds:
+      - task: ci:lint
+      - task: ci:build
+      - task: ci:boundaries
+      - task: ci:unit
+      - task: ci:int
+      - task: ci:sit
+      - task: ci:logfile
+  check:
+    desc: The one gate - lint and format, build (warnings are errors), boundaries and policy, unit, integration, SIT, log-file test
+    cmds:
+      - task: ci:all

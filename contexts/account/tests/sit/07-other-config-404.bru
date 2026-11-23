@@ -1,0 +1,20 @@
+meta {
+  name: another user's configuration with my own path is 404
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Configuration/{{subB}}/{{acctConfigId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+  res.body.type: eq /problems/v1/entity_not_found
+}

@@ -1,0 +1,19 @@
+meta {
+  name: A gets a permanent invite
+  type: http
+  seq: 13
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Friend/{{subA}}/invites
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+assert {
+  res.status: eq 200
+}

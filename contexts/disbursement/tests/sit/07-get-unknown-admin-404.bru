@@ -1,0 +1,19 @@
+meta {
+  name: unknown payout as admin is 404
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/disbursement/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+assert {
+  res.status: eq 404
+}

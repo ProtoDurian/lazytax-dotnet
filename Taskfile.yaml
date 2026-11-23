@@ -1,0 +1,37 @@
+version: '3'
+vars:
+  SLOT: ../tools/slot.sh dotnet
+  PORT: '{{.PORT | default "55450"}}'
+includes:
+  ci:
+    taskfile: tasks/Taskfile.ci.yaml
+    flatten: true
+tasks:
+  build:
+    desc: Build everything (warnings are errors)
+    cmds:
+      - '{{.SLOT}} dotnet build all.proj -c Release -nologo'
+  run:
+    desc: Run the app (needs `task pg:up` and mock Logto)
+    cmds:
+      - dotnet run --project kernel -- {{.CLI_ARGS}}
+  policies:
+    desc: Print every route and MCP tool with its policy, subject and guards
+    cmds:
+      - dotnet run --project kernel -- policies
+  logto:
+    desc: Run mock Logto on :55490 (issuer http://localhost:55490/oidc)
+    cmds:
+      - dotnet run --project tools/MockLogto -- --urls http://localhost:55490
+  pg:up:
+    desc: 'Start Postgres for tests (PORT=55450 default; each builder has its own port)'
+    cmds:
+      - docker run -d --rm --label lazytax-model=1 --name lazytax-dotnet-pg-{{.PORT}} -e POSTGRES_PASSWORD=postgres -p {{.PORT}}:5432 postgres:17-alpine -c max_connections=300
+  pg:down:
+    desc: Stop this port's Postgres
+    cmds:
+      - docker rm -f lazytax-dotnet-pg-{{.PORT}} 2>/dev/null || true
+  test:
+    desc: 'Unit + integration tests of one context (CTX=vacation) or all'
+    cmds:
+      - '{{.SLOT}} timeout 600 dotnet test {{if .CTX}}contexts/{{.CTX}}/tests{{else}}all.proj{{end}} -nologo'

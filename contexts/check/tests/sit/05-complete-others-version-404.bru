@@ -1,0 +1,23 @@
+meta {
+  name: B completing A's habit version on B's own path is 404
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{subB}}/{{checkVersionA}}/executions
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+body:json {
+  { "notes": null }
+}
+
+assert {
+  res.status: eq 404
+}

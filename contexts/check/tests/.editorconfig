@@ -1,0 +1,3 @@
+# check's tests drive the app through HttpClient and services; test cancellation is not used here.
+[*.cs]
+dotnet_diagnostic.xUnit1051.severity = none

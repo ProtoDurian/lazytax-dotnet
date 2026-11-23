@@ -1,0 +1,17 @@
+meta {
+  name: nfc - 401 without a token
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/v1/NfcTag/{{subA}}/tag-0123456789abcdef
+  body: none
+  auth: none
+}
+
+tests {
+  test("anonymous is 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}

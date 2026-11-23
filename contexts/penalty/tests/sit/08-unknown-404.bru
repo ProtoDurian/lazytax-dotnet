@@ -1,0 +1,19 @@
+meta {
+  name: a penalty that is not the user's is 404
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Penalty/{{subB}}/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: none
+}
+
+headers {
+  Authorization: Bearer {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

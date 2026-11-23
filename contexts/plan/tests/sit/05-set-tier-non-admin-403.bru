@@ -1,0 +1,23 @@
+meta {
+  name: only admin sets a tier
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/v1/Subscription/{{subA}}/tier
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  { "tier": "ultimate" }
+}
+
+assert {
+  res.status: eq 403
+}

@@ -1,0 +1,7 @@
+id: ctx_ch7r4k
+name: charity
+needs: []
+provides: [charity.v1]
+uses: [postgres.main]
+http: { prefix: /api/v1 }
+mcp: { prefix: charity }

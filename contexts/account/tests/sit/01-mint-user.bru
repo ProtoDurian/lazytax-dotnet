@@ -1,0 +1,23 @@
+meta {
+  name: mint a user with sign-up claims
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{logtoUrl}}/token
+  body: json
+  auth: none
+}
+
+body:json {
+  { "sub": "sit-acct-a", "scope": "", "claims": { "username": "sitaccta", "email": "sit-acct-a@example.test", "email_verified": true } }
+}
+
+assert {
+  res.status: eq 200
+}
+
+script:post-response {
+  bru.setVar("acctA", res.body.access_token);
+}

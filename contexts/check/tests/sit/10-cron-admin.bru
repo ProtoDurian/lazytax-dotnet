@@ -1,0 +1,20 @@
+meta {
+  name: admin runs the cron tick
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/api/v1/habit-cron/mark-daily-failures
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.totalMarked: gte 0
+}

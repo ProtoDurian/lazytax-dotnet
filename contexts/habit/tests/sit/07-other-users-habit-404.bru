@@ -1,0 +1,19 @@
+meta {
+  name: 07-other-users-habit-404
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Habit/{{userB}}/{{habitId}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

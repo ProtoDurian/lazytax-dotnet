@@ -1,0 +1,138 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request: null
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+env:
+  DOTNET_NOLOGO: 'true'
+  DOTNET_CLI_TELEMETRY_OPTOUT: 'true'
+  ACTIONLINT_VERSION: 1.7.12
+  # Postgres service container, as KernelApp and the SIT harness read it (a connection string without Database).
+  LT_PG: Host=localhost;Port=5432;Username=postgres;Password=postgres
+jobs:
+  lint:
+    name: Lint and format
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          bun: 'true'
+      - name: Install actionlint
+        run: bash <(curl -fsSL "https://raw.githubusercontent.com/rhysd/actionlint/v${ACTIONLINT_VERSION}/scripts/download-actionlint.bash") "${ACTIONLINT_VERSION}" "$HOME/.local/bin" && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Lint and format
+        run: task ci:lint
+  build:
+    name: Types and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Build (Release, warnings are errors)
+        run: task ci:build
+  boundaries:
+    name: Boundaries and policy check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          bun: 'true'
+      - name: Boundaries and policy check
+        run: task ci:boundaries
+  unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Unit tests
+        run: task ci:unit
+  int:
+    name: Integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Integration tests
+        run: task ci:int
+  sit:
+    name: SIT (Bruno)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          bun: 'true'
+      - name: Cache the pinned Bruno CLI
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bruno-${{ runner.os }}-${{ hashFiles('tools/sit/sit.ts') }}
+      - name: SIT (Bruno)
+        run: task ci:sit
+      - name: Upload SIT reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sit-reports
+          path: reports/sit
+          if-no-files-found: ignore
+  logfile:
+    name: Log-file test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+        with:
+          bun: 'true'
+      - name: Log-file test
+        run: task ci:logfile

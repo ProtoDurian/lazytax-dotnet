@@ -1,0 +1,19 @@
+meta {
+  name: charity 401 403 404
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Charity
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}
+
+docs {
+  Anonymous read is 401. Non-admin write is 403 (charity-write-403.bru). Unknown id is 404 (charity-404.bru).
+}

@@ -1,0 +1,19 @@
+meta {
+  name: B reading A's execution on B's own path is 404
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Habit/{{subB}}/executions/{{checkExecutionA}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 404
+}

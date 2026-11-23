@@ -1,0 +1,24 @@
+meta {
+  name: admin sets pro
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/api/v1/Subscription/sit-vac-a/tier
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenAdmin}}
+}
+
+body:json {
+  { "tier": "pro", "days": 30 }
+}
+
+assert {
+  res.status: eq 200
+  res.body.tier: eq pro
+}

@@ -1,0 +1,21 @@
+meta {
+  name: B reads own balance and sees none of A's (owner scope)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Protection/{{subB}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.userId: eq {{subB}}
+  res.body.balance: eq 0
+}

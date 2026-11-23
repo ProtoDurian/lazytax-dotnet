@@ -1,0 +1,5 @@
+# Infrastructure this service (the deployed app) uses. One file per service, not per context.
+# A context's `uses:` in context.yaml must name an entry here; the kernel refuses to start otherwise.
+postgres.main:
+  kind: postgres
+  shared: false

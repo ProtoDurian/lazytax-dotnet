@@ -1,0 +1,17 @@
+meta {
+  name: strava - 401 without a token
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Strava/{{subA}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("anonymous is 401", function () {
+    expect(res.getStatus()).to.equal(401);
+  });
+}

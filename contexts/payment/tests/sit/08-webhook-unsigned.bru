@@ -1,0 +1,19 @@
+meta {
+  name: webhook without a signature: 401
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Payment/webhook
+  body: json
+  auth: none
+}
+
+body:json {
+  { "name": "payment_consent.verified", "data": { "object": { "id": "cst_x", "status": "VERIFIED", "customer_id": "cus_x" } } }
+}
+
+assert {
+  res.status: eq 401
+}

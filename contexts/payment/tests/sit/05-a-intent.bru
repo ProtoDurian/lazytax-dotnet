@@ -1,0 +1,28 @@
+meta {
+  name: A creates a payment intent: 200
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Payment/{{subA}}/intent
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenA}}
+}
+
+body:json {
+  { "amount": 5, "currency": "USD", "description": "sit" }
+}
+
+assert {
+  res.status: eq 200
+  res.body.paymentIntentId: isString
+}
+
+script:post-response {
+  bru.setVar("paymentIntentA", res.body.paymentIntentId);
+}

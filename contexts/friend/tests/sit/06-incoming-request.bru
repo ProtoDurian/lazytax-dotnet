@@ -1,0 +1,20 @@
+meta {
+  name: B sees the request
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/api/v1/Friend/{{subB}}/requests
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{tokenB}}
+}
+
+assert {
+  res.status: eq 200
+  res.body.incoming.length: gte 1
+}

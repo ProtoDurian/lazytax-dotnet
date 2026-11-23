@@ -1,0 +1,19 @@
+meta {
+  name: complete without a token is 401
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/v1/Habit/{{subA}}/00000000-0000-0000-0000-000000000001/executions
+  body: json
+  auth: none
+}
+
+body:json {
+  { "notes": null }
+}
+
+assert {
+  res.status: eq 401
+}

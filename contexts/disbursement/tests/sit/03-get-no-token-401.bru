@@ -1,0 +1,15 @@
+meta {
+  name: get without a token is 401
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/api/v1/disbursement/00000000-0000-0000-0000-000000000001
+  body: none
+  auth: none
+}
+
+assert {
+  res.status: eq 401
+}
