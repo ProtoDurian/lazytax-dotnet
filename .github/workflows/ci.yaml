@@ -113,7 +113,7 @@ jobs:
         with:
           bun: 'true'
       - name: Cache the pinned Bruno CLI
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: bruno-${{ runner.os }}-${{ hashFiles('tools/sit/sit.ts') }}
